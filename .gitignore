@@ -1,0 +1,10 @@
+# Dependency directories
+assets/
+node_modules/
+
+# Ignore uploads or static files (optional)
+src/public/storage
+
+logger.log
+
+.env
