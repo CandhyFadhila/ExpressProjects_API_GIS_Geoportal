@@ -1,14 +1,11 @@
 const knex = require("knex");
+const { getPgConfig } = require("./pgConfig");
+
+const pgConfig = getPgConfig();
 
 const db = knex({
   client: "pg",
-  connection: {
-    host: "localhost",
-    port: 5433,
-    user: "postgres",
-    password: "super.admin",
-    database: "gis_bpn_v2",
-  },
+  connection: pgConfig,
   pool: {
     min: 2,
     max: 50,

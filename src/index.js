@@ -1,10 +1,8 @@
 require("dotenv").config();
 const express = require("express");
-const cors = require("cors");
 const morgan = require("morgan");
 const knex = require("./config/database");
 const authRoutes = require("./routes/authRoutes");
-const wmsRoutes = require("./routes/wmsRoutes");
 const logger = require("./utils/logger");
 const path = require("path");
 const documentRoutes = require("./routes/documentRoutes");
@@ -22,17 +20,43 @@ app.use(morgan("dev"));
 
 // Cek API root
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to the API GIS!" });
+  res.json({ message: "Welcome to the API Geoserver!" });
 });
 
 // Cek db
 app.get("/check-db", async (req, res) => {
   try {
-    const result = await knex.raw("SELECT NOW()");
+    const [metaResult, tablesResult] = await Promise.all([
+      knex.raw(`
+        SELECT
+          current_database() AS database,
+          current_schema()   AS schema,
+          current_user       AS "user",
+          current_setting('port') AS port,
+          NOW()              AS server_time
+      `),
+      knex.raw(`
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = current_schema()
+          AND table_type = 'BASE TABLE'
+        ORDER BY table_name
+      `),
+    ]);
+
+    const meta = metaResult.rows[0];
+    const tables = tablesResult.rows.map((row) => row.table_name);
+
     res.json({
       status: "success",
       message: "Koneksi database berhasil.",
-      server_time: result.rows[0].now,
+      database: meta.database,
+      schema: meta.schema,
+      user: meta.user,
+      port: Number(meta.port),
+      server_time: meta.server_time,
+      tables_count: tables.length,
+      tables,
     });
   } catch (error) {
     logger.error("DB Connection Error:", error.message);
