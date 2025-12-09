@@ -11,8 +11,9 @@ const rateLimiter = require("../middlewares/rateLimitMiddleware");
 
 // Auth
 router.post("/signin", rateLimiter, loginValidator, authController.login);
+router.post("/refresh-token", rateLimiter, authController.refreshToken);
 router.get("/user-info", rateLimiter, authMiddleware, authController.getUserInfo);
-router.get("/signout", rateLimiter, authMiddleware, authController.logout);
+router.post("/signout", rateLimiter, authMiddleware, authController.logout);
 
 // Reset Password via OTP
 router.post("/send-otp", rateLimiter, sendOTPValidator, validate, authController.sendOTP);
