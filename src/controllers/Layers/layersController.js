@@ -76,6 +76,7 @@ exports.store = async (req, res) => {
         "Format Data Tidak Sesuai Ketentuan",
         message
       );
+      await trx.rollback();
       return res.status(400).json(response.toResponse());
     }
 
@@ -131,6 +132,7 @@ exports.store = async (req, res) => {
         "Dokumen Tidak Ditemukan",
         "Dokumen shapefile atau geojson wajib diunggah."
       );
+      await trx.rollback();
       return res.status(400).json(response.toResponse());
     }
     if (req.files.length > 1) {
@@ -140,6 +142,7 @@ exports.store = async (req, res) => {
         "Terlalu Banyak Dokumen",
         "Maksimal hanya 1 file ZIP yang dapat diunggah."
       );
+      await trx.rollback();
       return res.status(400).json(response.toResponse());
     }
 
@@ -156,6 +159,7 @@ exports.store = async (req, res) => {
           "Tipe Dokumen Salah",
           "File yang diunggah harus berformat .zip dan berisi shapefile."
         );
+        await trx.rollback();
         return res.status(400).json(response.toResponse());
       }
       if (file.size > 50 * 1024 * 1024) {
@@ -165,6 +169,7 @@ exports.store = async (req, res) => {
           "Ukuran Dokumen Terlalu Besar",
           "Ukuran maksimal tiap file adalah 50MB."
         );
+        await trx.rollback();
         return res.status(400).json(response.toResponse());
       }
     }
